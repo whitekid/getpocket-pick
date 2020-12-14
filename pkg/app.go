@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/allegro/bigcache"
@@ -184,12 +185,15 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	log.Debugf("article: %+v", article)
 
 	url := fmt.Sprintf("https://app.getpocket.com/read/%s", article.ItemID)
-	// IsArticle이 뭔 의미인지..
-	// if article.IsArticle == "1" {
-	// 	url = article.ResolvedURL
-	// }
-
-	// log.Infof("move to %s, resolved: %s", url, article.ResolvedURL)
+	// 어떤 서비스는 getpocket의 app이 읽지를 못한다.
+	// thebarum.tistory.com
+	for _, u := range []string{"blog.naver.com", "tumblr.com", "brunch.co.kr", "mimul.com", "news.chosun.com", "zdnet.co.kr", "dbr.donga.com"} {
+		if strings.Contains(article.ResolvedURL, u) {
+			log.Infof("%s contains %s, replace url to %s", article.ResolvedURL, u, article.ResolvedURL)
+			url = article.ResolvedURL
+			break
+		}
+	}
 	return c.Redirect(http.StatusFound, url)
 }
 
