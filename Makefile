@@ -37,11 +37,11 @@ test:
 # update modules & tidy
 dep:
 	rm -f go.mod go.sum
-	go mod init github.com/whitekid/pocket-pick
+	go mod init ${GO_PKG_NAME}
 	@$(MAKE) tidy
 
 tidy:
-	go mod tidy
+	go mod tidy -go=1.16 && go mod tidy -go=1.17
 
 swag:
 	swag init -d pkg  -g app.go
