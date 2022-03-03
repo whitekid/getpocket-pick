@@ -33,6 +33,7 @@ func WithDomain(domain string) GetOption {
 		o.domain = domain
 	})
 }
+
 func WithFavorate(favorate int) GetOption {
 	return newFuncGetOption(func(o *GetOptions) {
 		o.favorite = favorate

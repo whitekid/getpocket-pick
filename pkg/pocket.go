@@ -2,6 +2,7 @@ package pocket
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -88,13 +89,13 @@ func (g *GetPocketAPI) success(r *request.Response) error {
 }
 
 // AuthorizedURL get authorizedURL
-func (g *GetPocketAPI) AuthorizedURL(redirectURI string) (string, string, error) {
+func (g *GetPocketAPI) AuthorizedURL(ctx context.Context, redirectURI string) (string, string, error) {
 	resp, err := request.Post("https://getpocket.com/v3/oauth/request").
 		Header("X-"+echo.HeaderAccept, echo.MIMEApplicationJSON).
 		JSON(map[string]string{
 			"consumer_key": g.consumerKey,
 			"redirect_uri": redirectURI,
-		}).Do()
+		}).Do(ctx)
 
 	if err != nil {
 		return "", "", err
@@ -116,7 +117,7 @@ func (g *GetPocketAPI) AuthorizedURL(redirectURI string) (string, string, error)
 }
 
 // NewAccessToken get accessToken, username from requestToken using oauth
-func (g *GetPocketAPI) NewAccessToken(requestToken string) (string, string, error) {
+func (g *GetPocketAPI) NewAccessToken(ctx context.Context, requestToken string) (string, string, error) {
 	log.Debugf("getAccessToken with %s", requestToken)
 
 	resp, err := g.sess.Post("https://getpocket.com/v3/oauth/authorize").
@@ -124,7 +125,7 @@ func (g *GetPocketAPI) NewAccessToken(requestToken string) (string, string, erro
 		JSON(map[string]string{
 			"consumer_key": g.consumerKey,
 			"code":         requestToken,
-		}).Do()
+		}).Do(ctx)
 	if err != nil {
 		return "", "", err
 	}
@@ -161,7 +162,7 @@ type ArticleGetResponse struct {
 }
 
 // Get Retrieving a User's Pocket Data
-func (a *ArticlesAPI) Get(opts ...GetOption) (map[string]Article, error) {
+func (a *ArticlesAPI) Get(ctx context.Context, opts ...GetOption) (map[string]Article, error) {
 	params := map[string]interface{}{
 		"consumer_key": a.pocket.consumerKey,
 		"access_token": a.pocket.accessToken,
@@ -188,7 +189,7 @@ func (a *ArticlesAPI) Get(opts ...GetOption) (map[string]Article, error) {
 
 	resp, err := a.pocket.sess.Post("https://getpocket.com/v3/get").
 		Header("X-"+echo.HeaderAccept, echo.MIMEApplicationJSON).
-		JSON(params).Do()
+		JSON(params).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +234,7 @@ type articleActionResults struct {
 	Status        int    `json:"status"`
 }
 
-func (a *ArticlesAPI) sendAction(actions []articleActionParam) (*articleActionResults, error) {
+func (a *ArticlesAPI) sendAction(ctx context.Context, actions []articleActionParam) (*articleActionResults, error) {
 	var buf bytes.Buffer
 	json.NewEncoder(&buf).Encode(&actions)
 
@@ -242,7 +243,7 @@ func (a *ArticlesAPI) sendAction(actions []articleActionParam) (*articleActionRe
 		Form("consumer_key", a.pocket.consumerKey).
 		Form("access_token", a.pocket.accessToken).
 		Form("actions", buf.String()).
-		Do()
+		Do(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -266,7 +267,7 @@ func (a *ArticlesAPI) sendAction(actions []articleActionParam) (*articleActionRe
 
 // Delete delete article by item id
 // NOTE Delete action always success ㅡㅡ;
-func (a *ArticlesAPI) Delete(itemIDs ...string) error {
+func (a *ArticlesAPI) Delete(ctx context.Context, itemIDs ...string) error {
 	log.Debugf("remove item: %s", itemIDs)
 
 	params := make([]articleActionParam, len(itemIDs))
@@ -275,7 +276,7 @@ func (a *ArticlesAPI) Delete(itemIDs ...string) error {
 		params[i].ItemID = itemIDs[i]
 	}
 
-	_, err := a.sendAction(params)
+	_, err := a.sendAction(ctx, params)
 	if err != nil {
 		return errors.Wrapf(err, "delete(%s)", itemIDs)
 	}

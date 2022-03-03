@@ -10,7 +10,7 @@ func init() {
 		Use:  "check-dead-link",
 		Long: "check dead link",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return pocket.CheckDeadLink()
+			return pocket.CheckDeadLink(rootCmd.Context())
 		},
 	})
 }

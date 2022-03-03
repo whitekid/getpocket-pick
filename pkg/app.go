@@ -109,7 +109,8 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 
 	// if not token, try to authorize
 	if _, exists := sess.Values[keyRequestToken]; !exists {
-		requestToken, authorizedURL, err := NewGetPocketAPI(config.ConsumerKey(), "").AuthorizedURL(fmt.Sprintf("%s/auth", s.rootURL))
+		requestToken, authorizedURL, err := NewGetPocketAPI(config.ConsumerKey(), "").
+			AuthorizedURL(c.Request().Context(), fmt.Sprintf("%s/auth", s.rootURL))
 		if err != nil {
 			return errors.Wrapf(err, "authorize failed")
 		}
@@ -136,7 +137,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	var articleList map[string]Article
 	if !exists {
 		var err error
-		articleList, err = api.Articles.Get(WithFavorate(Favorited))
+		articleList, err = api.Articles.Get(c.Request().Context(), WithFavorate(Favorited))
 		if err != nil {
 			return errors.Wrap(err, "get favorite artcles failed")
 		}
@@ -205,7 +206,7 @@ func (s *pocketService) handleGetAuth(c echo.Context) (err error) {
 
 	requestToken := sess.Values[keyRequestToken].(string)
 	if _, exists := sess.Values[keyAccessToken]; !exists {
-		accessToken, _, err := NewGetPocketAPI(config.ConsumerKey(), "").NewAccessToken(requestToken)
+		accessToken, _, err := NewGetPocketAPI(config.ConsumerKey(), "").NewAccessToken(c.Request().Context(), requestToken)
 		if err != nil {
 			log.Errorf("fail to get access token: %s", err)
 			return err
@@ -253,7 +254,7 @@ func (s *pocketService) handleGetArticle(c echo.Context) error {
 		return c.Redirect(http.StatusFound, s.rootURL)
 	}
 
-	if err := NewGetPocketAPI(config.ConsumerKey(), accessToken).Articles.Delete(itemID); err != nil {
+	if err := NewGetPocketAPI(config.ConsumerKey(), accessToken).Articles.Delete(c.Request().Context(), itemID); err != nil {
 		log.Errorf("failed: %s", err)
 		return err
 	}

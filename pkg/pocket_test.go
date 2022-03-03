@@ -1,6 +1,7 @@
 package pocket
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -10,7 +11,7 @@ import (
 func TestGetAuthorizedURL(t *testing.T) {
 	api := NewGetPocketAPI(config.ConsumerKey(), "")
 
-	token, url, err := api.AuthorizedURL("http://127.0.0.1")
+	token, url, err := api.AuthorizedURL(context.Background(), "http://127.0.0.1")
 	require.NoError(t, err, "error = %v", err)
 	require.NotEqual(t, "", token)
 	require.NotEqual(t, "", url)
@@ -35,7 +36,7 @@ func TestArticleSearch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			api := NewGetPocketAPI(config.ConsumerKey(), config.AccessToken())
-			items, err := api.Articles.Get(WithSearch(tt.args.url))
+			items, err := api.Articles.Get(context.Background(), WithSearch(tt.args.url))
 			require.NoError(t, err)
 			require.Equal(t, 1, len(items))
 
@@ -49,5 +50,5 @@ func TestArticleSearch(t *testing.T) {
 
 func TestArticleDelete(t *testing.T) {
 	api := NewGetPocketAPI(config.ConsumerKey(), config.AccessToken())
-	require.NoError(t, api.Articles.Delete("567640688"))
+	require.NoError(t, api.Articles.Delete(context.Background(), "567640688"))
 }

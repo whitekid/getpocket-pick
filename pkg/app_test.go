@@ -1,6 +1,7 @@
 package pocket
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -27,8 +28,10 @@ func TestSession(t *testing.T) {
 
 	sess := request.NewSession(nil)
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
 	for i := 0; i < 10; i++ {
-		resp, err := sess.Get("%s%s", ts.URL, "/sessions").Do()
+		resp, err := sess.Get("%s%s", ts.URL, "/sessions").Do(ctx)
 		require.NotEqual(t, 0, len(resp.Cookies()), "cookie must be exists")
 		require.NoError(t, err)
 		require.True(t, resp.Success(), "status=%d", resp.StatusCode)
@@ -43,8 +46,11 @@ func TestIndex(t *testing.T) {
 	ts, teardown := newTestServer()
 	defer teardown()
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
 	// check if redirect to authorize url
-	resp, err := request.Get("%s", ts.URL).FollowRedirect(false).Do()
+	resp, err := request.Get("%s", ts.URL).FollowRedirect(false).Do(ctx)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusFound, resp.StatusCode)
 	require.True(t, strings.HasPrefix(resp.Header.Get("Location"), "https://getpocket.com/auth/authorize?request_token="), resp.Header.Get("Location"))

@@ -1,6 +1,7 @@
 package pocket
 
 import (
+	"context"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -10,9 +11,9 @@ import (
 )
 
 // CheckDeadLink ...
-func CheckDeadLink() error {
+func CheckDeadLink(ctx context.Context) error {
 	api := NewGetPocketAPI(config.ConsumerKey(), config.AccessToken())
-	items, err := api.Articles.Get(WithFavorate(Favorited))
+	items, err := api.Articles.Get(ctx, WithFavorate(Favorited))
 	if err != nil {
 		return errors.Wrap(err, "articles.Get(Favorite)")
 	}
@@ -48,7 +49,7 @@ func CheckDeadLink() error {
 				log.Infof("checking %s %s", article.ItemID, article.ResolvedURL)
 				resp, err := request.Get(article.ResolvedURL).
 					Header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36").
-					Do()
+					Do(ctx)
 				if err != nil {
 					log.Errorf("check link failed: itemID: %s,   link: %s, err: %s", article.ItemID, article.ResolvedURL, err)
 					itemsToDelete = append(itemsToDelete, article.ItemID)
@@ -65,10 +66,12 @@ func CheckDeadLink() error {
 
 	wg.Wait()
 
-	log.Infof("deleting: %v", itemsToDelete)
+	if len(itemsToDelete) > 0 {
+		log.Infof("deleting: %v", itemsToDelete)
 
-	if err := api.Articles.Delete(itemsToDelete...); err != nil {
-		return errors.Wrapf(err, "articles.Delete(%s)", itemsToDelete)
+		if err := api.Articles.Delete(ctx, itemsToDelete...); err != nil {
+			return errors.Wrapf(err, "articles.Delete(%s)", itemsToDelete)
+		}
 	}
 
 	return nil

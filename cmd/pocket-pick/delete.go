@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -19,17 +20,17 @@ func init() {
 		Args:         cobra.MinimumNArgs(1),
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return deleteArticle(args...)
+			return deleteArticle(rootCmd.Context(), args...)
 		},
 	})
 }
 
-func deleteArticle(itemIDs ...string) error {
+func deleteArticle(ctx context.Context, itemIDs ...string) error {
 	api := pocket.NewGetPocketAPI(config.ConsumerKey(), config.AccessToken())
 	for _, arg := range itemIDs {
 		// delete by url
 		if strings.HasPrefix(arg, "http://") || strings.HasPrefix(arg, "https://") {
-			items, err := api.Articles.Get(pocket.WithSearch(arg))
+			items, err := api.Articles.Get(ctx, pocket.WithSearch(arg))
 			if err != nil {
 				return errors.Wrapf(err, "articles.Get(%+v)", arg)
 			}
@@ -40,7 +41,7 @@ func deleteArticle(itemIDs ...string) error {
 
 			for _, v := range items {
 				log.Infof("deleting %s, %s", v.ItemID, v.ResolvedURL)
-				if err := api.Articles.Delete(v.ItemID); err != nil {
+				if err := api.Articles.Delete(ctx, v.ItemID); err != nil {
 					errors.Wrapf(err, "articles.Delete(%s)", v.ItemID)
 					return err
 				}
@@ -52,7 +53,7 @@ func deleteArticle(itemIDs ...string) error {
 			}
 
 			log.Infof("deleting item %s", arg)
-			if err := api.Articles.Delete(arg); err != nil {
+			if err := api.Articles.Delete(ctx, arg); err != nil {
 				return errors.Wrapf(err, "articles.Delete(%s)", arg)
 			}
 		}
