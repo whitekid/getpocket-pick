@@ -141,7 +141,6 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "get favorite artcles failed")
 		}
-		log.Debugf("you have %d articles", len(articleList))
 
 		// write to cache
 		buf, err := json.Marshal(articleList)
@@ -158,6 +157,8 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 			return errors.Wrap(err, "json decode failed")
 		}
 	}
+
+	log.Debugf("you have %d articles", len(articleList))
 
 	// random pick from articles
 	pick := rand.Intn(len(articleList))
@@ -182,6 +183,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 			break
 		}
 	}
+
 	// get pocket의 article view로 보이지 않는 것들..
 	// https://brunch.co.kr/@workplays/29
 	// http://m.blog.naver.com/mentoru/220042812351
