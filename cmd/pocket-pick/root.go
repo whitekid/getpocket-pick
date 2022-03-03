@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/spf13/cobra"
-	pocket "github.com/whitekid/pocket-pick/pkg"
-	"github.com/whitekid/pocket-pick/pkg/config"
+	pocket "github.com/whitekid/pocket-pick"
+	"github.com/whitekid/pocket-pick/config"
 )
 
 var rootCmd = &cobra.Command{

@@ -10,12 +10,12 @@ GIT_DIRTY ?= $(shell test -n "`git status --porcelain`" && echo "dirty" || echo 
 VER_BUILD_TIME ?= $(shell date +%Y-%m-%dT%H:%M:%S%z)
 
 LDFLAGS = -s -w
-LDFLAGS += -X ${GO_PKG_NAME}/pkg.GitCommit=${GIT_COMMIT}
-LDFLAGS += -X ${GO_PKG_NAME}/pkg.GitSHA=${GIT_SHA}
-LDFLAGS += -X ${GO_PKG_NAME}/pkg.GitBranch=${GIT_BRANCH}
-LDFLAGS += -X ${GO_PKG_NAME}/pkg.GitTag=${GIT_TAG}
-LDFLAGS += -X ${GO_PKG_NAME}/pkg.GitDirty=${GIT_DIRTY}
-LDFLAGS += -X ${GO_PKG_NAME}/pkg.BuildTime=${VER_BUILD_TIME}
+LDFLAGS += -X ${GO_PKG_NAME}.GitCommit=${GIT_COMMIT}
+LDFLAGS += -X ${GO_PKG_NAME}.GitSHA=${GIT_SHA}
+LDFLAGS += -X ${GO_PKG_NAME}.GitBranch=${GIT_BRANCH}
+LDFLAGS += -X ${GO_PKG_NAME}.GitTag=${GIT_TAG}
+LDFLAGS += -X ${GO_PKG_NAME}.GitDirty=${GIT_DIRTY}
+LDFLAGS += -X ${GO_PKG_NAME}.BuildTime=${VER_BUILD_TIME}
 
 BUILD_FLAGS?=-v -ldflags="${LDFLAGS}"
 

@@ -17,7 +17,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/whitekid/go-utils/log"
 	"github.com/whitekid/go-utils/service"
-	"github.com/whitekid/pocket-pick/pkg/config"
+	"github.com/whitekid/pocket-pick/config"
 )
 
 const (

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/pocket-pick/pkg/config"
+	"github.com/whitekid/pocket-pick/config"
 )
 
 func TestGetAuthorizedURL(t *testing.T) {

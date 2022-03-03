@@ -9,8 +9,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/whitekid/go-utils/log"
-	pocket "github.com/whitekid/pocket-pick/pkg"
-	"github.com/whitekid/pocket-pick/pkg/config"
+	pocket "github.com/whitekid/pocket-pick"
+	"github.com/whitekid/pocket-pick/config"
 )
 
 func init() {
