@@ -30,7 +30,7 @@ func TestCheckFetchArticle(t *testing.T) {
 				Do(context.Background())
 			if tt.wantErr && err != nil {
 				require.Fail(t, "wantErr: %s but got success", tt.wantErr)
-				// require.True(t, resp.Success())
+				require.True(t, resp.Success())
 			}
 
 			require.Equal(t, tt.wantSuccess, resp.Success(), "wantSuccess: %v but get status %d", tt.wantSuccess, resp.StatusCode)

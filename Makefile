@@ -44,4 +44,4 @@ tidy:
 	go mod tidy -go=1.16 && go mod tidy -go=1.17
 
 swag:
-	swag init -d pkg  -g app.go
+	swag init -d .  -g app.go

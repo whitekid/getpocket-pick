@@ -62,7 +62,7 @@ func (s *pocketService) setupRoute() *echo.Echo {
 				sess, _ := session.Get("pocket-pick-session", c)
 				sess.Options = &sessions.Options{
 					Path:     "/",
-					MaxAge:   86400,
+					MaxAge:   config.CookieTimeoutSeconds(),
 					HttpOnly: true,
 				}
 
@@ -121,6 +121,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 		return c.Redirect(http.StatusFound, authorizedURL)
 	}
 
+	// aleardy has a token, redirect to root to get article
 	if _, exists := sess.Values[keyAccessToken]; !exists {
 		delete(sess.Values, keyRequestToken)
 		sess.Save(c.Request(), c.Response())

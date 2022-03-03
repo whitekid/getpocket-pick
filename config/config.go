@@ -9,11 +9,12 @@ import (
 )
 
 const (
-	keyBind         = "bind_addr"
-	keyRootURL      = "root_url"
-	keyConsumerKey  = "consumer_key"
-	keyAccessToken  = "access_token"
-	keyCacheTimeout = "favorite_cache_timeout"
+	keyBind          = "bind_addr"
+	keyRootURL       = "root_url"
+	keyConsumerKey   = "consumer_key"
+	keyAccessToken   = "access_token"
+	keyCookieTimeout = "cookie_timeout"
+	keyCacheTimeout  = "favorite_cache_timeout"
 )
 
 var configs = map[string][]flags.Flag{
@@ -22,6 +23,7 @@ var configs = map[string][]flags.Flag{
 		{keyRootURL, "r", "http://127.0.0.0:8000", "root url"},
 		{keyConsumerKey, "k", "", "getpocket consumer key"},
 		{keyAccessToken, "a", "", "getpocket access token"},
+		{keyCookieTimeout, "c", time.Hour * 24 * 30, "cookie timeout"},
 		{keyCacheTimeout, "", time.Hour, "timeout for cache favorite items"},
 	},
 }
@@ -41,3 +43,4 @@ func RootURL() string                     { return viper.GetString(keyRootURL) }
 func ConsumerKey() string                 { return viper.GetString(keyConsumerKey) }
 func AccessToken() string                 { return viper.GetString(keyAccessToken) }
 func CacheEvictionTimeout() time.Duration { return viper.GetDuration(keyCacheTimeout) }
+func CookieTimeoutSeconds() int           { return int(viper.GetDuration(keyCookieTimeout)) }
