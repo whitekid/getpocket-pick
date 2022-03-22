@@ -14,22 +14,26 @@ import (
 	"github.com/whitekid/go-utils/request"
 )
 
-func newTestServer() (*httptest.Server, func()) {
+func newTestServer(ctx context.Context) *httptest.Server {
 	s := New().(*pocketService)
 	e := s.setupRoute()
 
 	ts := httptest.NewServer(e)
-	return ts, func() { ts.Close() }
+	go func() {
+		<-ctx.Done()
+		ts.Close()
+	}()
+	return ts
 }
 
 func TestSession(t *testing.T) {
-	ts, teardown := newTestServer()
-	defer teardown()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	ts := newTestServer(ctx)
 
 	sess := request.NewSession(nil)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
 	for i := 0; i < 10; i++ {
 		resp, err := sess.Get("%s%s", ts.URL, "/sessions").Do(ctx)
 		require.NotEqual(t, 0, len(resp.Cookies()), "cookie must be exists")
@@ -43,11 +47,10 @@ func TestSession(t *testing.T) {
 }
 
 func TestIndex(t *testing.T) {
-	ts, teardown := newTestServer()
-	defer teardown()
-
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
+
+	ts := newTestServer(ctx)
 
 	// check if redirect to authorize url
 	resp, err := request.Get("%s", ts.URL).FollowRedirect(false).Do(ctx)
