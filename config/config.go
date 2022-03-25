@@ -32,10 +32,10 @@ func init() {
 	viper.SetEnvPrefix("pp")
 	viper.AutomaticEnv()
 
-	flags.InitDefaults(configs)
+	flags.InitDefaults(nil, configs)
 }
 
-func InitFlagSet(use string, fs *pflag.FlagSet) { flags.InitFlagSet(configs, use, fs) }
+func InitFlagSet(use string, fs *pflag.FlagSet) { flags.InitFlagSet(nil, configs, use, fs) }
 
 // Config access functions
 func BindAddr() string                    { return viper.GetString(keyBind) }
