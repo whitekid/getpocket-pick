@@ -53,6 +53,7 @@ func (s *pocketService) Serve(ctx context.Context, args ...string) error {
 
 func (s *pocketService) setupRoute() *echo.Echo {
 	e := echo.New()
+	e.HideBanner = true
 
 	loggerConfig := middleware.DefaultLoggerConfig
 	e.Use(middleware.LoggerWithConfig(loggerConfig))
