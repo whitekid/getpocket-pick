@@ -11,7 +11,7 @@ import (
 
 	"github.com/allegro/bigcache"
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/go-utils/request"
+	"github.com/whitekid/goxp/request"
 )
 
 func newTestServer(ctx context.Context) *httptest.Server {

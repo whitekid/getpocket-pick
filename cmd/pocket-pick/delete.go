@@ -8,7 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/whitekid/go-utils/log"
+	"github.com/whitekid/goxp/log"
 	pocket "github.com/whitekid/pocket-pick"
 	"github.com/whitekid/pocket-pick/config"
 )

@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/whitekid/go-utils/request"
+	"github.com/whitekid/goxp/request"
 	pocket "github.com/whitekid/pocket-pick"
 	"github.com/whitekid/pocket-pick/config"
 )

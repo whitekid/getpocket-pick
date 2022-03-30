@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-
 	"github.com/spf13/cobra"
 	pocket "github.com/whitekid/pocket-pick"
 	"github.com/whitekid/pocket-pick/config"
@@ -11,7 +9,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use: "pocket-pick",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return pocket.New().Serve(context.TODO(), args...)
+		return pocket.New().Serve(cmd.Context())
 	},
 }
 

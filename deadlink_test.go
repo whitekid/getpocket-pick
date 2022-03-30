@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/go-utils/request"
+	"github.com/whitekid/goxp/request"
 )
 
 func TestCheckFetchArticle(t *testing.T) {

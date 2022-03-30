@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/whitekid/go-utils/flags"
+	"github.com/whitekid/goxp/flags"
 )
 
 const (

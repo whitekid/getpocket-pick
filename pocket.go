@@ -12,8 +12,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
-	"github.com/whitekid/go-utils/log"
-	"github.com/whitekid/go-utils/request"
+	"github.com/whitekid/goxp/log"
+	"github.com/whitekid/goxp/request"
 )
 
 // GetPocketAPI get pocket api

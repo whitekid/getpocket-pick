@@ -15,8 +15,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/pkg/errors"
-	"github.com/whitekid/go-utils/log"
-	"github.com/whitekid/go-utils/service"
+	"github.com/whitekid/goxp/log"
+	"github.com/whitekid/goxp/service"
 	"github.com/whitekid/pocket-pick/config"
 )
 
@@ -45,7 +45,7 @@ type pocketService struct {
 }
 
 // Serve serve the main service
-func (s *pocketService) Serve(ctx context.Context, args ...string) error {
+func (s *pocketService) Serve(ctx context.Context) error {
 	e := s.setupRoute()
 
 	return e.Start(config.BindAddr())
