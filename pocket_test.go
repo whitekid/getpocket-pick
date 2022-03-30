@@ -3,6 +3,7 @@ package pocket
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/whitekid/pocket-pick/config"
@@ -31,7 +32,7 @@ func TestArticleSearch(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"url", args{"http://dalinaum-kr.tumblr.com/post/15516936704/git-work-flow"}, false},
+		{"url", args{"https://brunch.co.kr/@lunarshore/285"}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -49,6 +50,14 @@ func TestArticleSearch(t *testing.T) {
 }
 
 func TestArticleDelete(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	api := NewGetPocketAPI(config.ConsumerKey(), config.AccessToken())
-	require.NoError(t, api.Articles.Delete(context.Background(), "567640688"))
+
+	itemID, err := api.Articles.Add(ctx, "https://news.v.daum.net/v/20220331000726592")
+	require.NoError(t, err)
+	require.NotEqual(t, "", itemID)
+
+	require.NoError(t, api.Articles.Delete(ctx, itemID))
 }

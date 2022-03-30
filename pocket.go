@@ -265,6 +265,31 @@ func (a *ArticlesAPI) sendAction(ctx context.Context, actions []articleActionPar
 	return &response, nil
 }
 
+func (a *ArticlesAPI) Add(ctx context.Context, url string) (itemID string, err error) {
+	resp, err := a.pocket.sess.Post("https://getpocket.com/v3/add").
+		JSON(map[string]string{
+			"url":          url,
+			"consumer_key": a.pocket.consumerKey,
+			"access_token": a.pocket.accessToken,
+		}).Do(ctx)
+
+	if err != nil {
+		return "", errors.Wrapf(err, "add failed: %s", url)
+	}
+
+	var response struct {
+		Item struct {
+			ItemID string `json:"item_id"`
+		} `json:"item"`
+	}
+
+	if err := resp.JSON(&response); err != nil {
+		return "", err
+	}
+
+	return response.Item.ItemID, nil
+}
+
 // Delete delete article by item id
 // NOTE Delete action always success ㅡㅡ;
 func (a *ArticlesAPI) Delete(ctx context.Context, itemIDs ...string) error {

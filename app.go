@@ -63,7 +63,7 @@ func (s *pocketService) setupRoute() *echo.Echo {
 				sess, _ := session.Get("pocket-pick-session", c)
 				sess.Options = &sessions.Options{
 					Path:     "/",
-					MaxAge:   config.CookieTimeoutSeconds(),
+					MaxAge:   int(config.CookieTimeout().Seconds()),
 					HttpOnly: true,
 				}
 

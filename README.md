@@ -1,6 +1,8 @@
 # random pick my favorite article from getpocket.com
 
-launch server
+[![Go](https://github.com/whitekid/getpocket-pick/actions/workflows/go.yml/badge.svg)](https://github.com/whitekid/getpocket-pick/actions/workflows/go.yml)
+
+## launch server
 
     export CONSUMER_KEY={your-get-pocket-consumer-key}
     export ROOT_URL={your-root-url}
@@ -10,7 +12,7 @@ launch server
 
 and open ROOT_URL with your browser.
 
-http://pick.woosum.net
+https://pick.woosum.net
 
 ## 왜?
 
