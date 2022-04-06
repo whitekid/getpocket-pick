@@ -9,8 +9,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/whitekid/goxp/log"
-	pocket "github.com/whitekid/pocket-pick"
 	"github.com/whitekid/pocket-pick/config"
+	"github.com/whitekid/pocket-pick/pkg/pocket"
 )
 
 func init() {
@@ -19,18 +19,16 @@ func init() {
 		Long:         "delete article",
 		Args:         cobra.MinimumNArgs(1),
 		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return deleteArticle(rootCmd.Context(), args...)
-		},
+		RunE:         func(cmd *cobra.Command, args []string) error { return deleteArticle(rootCmd.Context(), args...) },
 	})
 }
 
 func deleteArticle(ctx context.Context, itemIDs ...string) error {
-	api := pocket.NewGetPocketAPI(config.ConsumerKey(), config.AccessToken())
+	api := pocket.New(config.ConsumerKey(), config.AccessToken())
 	for _, arg := range itemIDs {
 		// delete by url
 		if strings.HasPrefix(arg, "http://") || strings.HasPrefix(arg, "https://") {
-			items, err := api.Articles.Get(ctx, pocket.WithSearch(arg))
+			items, err := api.Articles.Get().Search(arg).Do(ctx)
 			if err != nil {
 				return errors.Wrapf(err, "articles.Get(%+v)", arg)
 			}
@@ -42,8 +40,7 @@ func deleteArticle(ctx context.Context, itemIDs ...string) error {
 			for _, v := range items {
 				log.Infof("deleting %s, %s", v.ItemID, v.ResolvedURL)
 				if err := api.Articles.Delete(ctx, v.ItemID); err != nil {
-					errors.Wrapf(err, "articles.Delete(%s)", v.ItemID)
-					return err
+					return errors.Wrapf(err, "articles.Delete(%s)", v.ItemID)
 				}
 			}
 		} else {

@@ -10,7 +10,7 @@ import (
 )
 
 func TestGetAuthorizedURL(t *testing.T) {
-	api := NewGetPocketAPI(config.ConsumerKey(), "")
+	api := New(config.ConsumerKey(), "")
 
 	token, url, err := api.AuthorizedURL(context.Background(), "http://127.0.0.1")
 	require.NoError(t, err, "error = %v", err)
@@ -36,8 +36,8 @@ func TestArticleSearch(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			api := NewGetPocketAPI(config.ConsumerKey(), config.AccessToken())
-			items, err := api.Articles.Get(context.Background(), WithSearch(tt.args.url))
+			api := New(config.ConsumerKey(), config.AccessToken())
+			items, err := api.Articles.Get().Search(tt.args.url).Do(context.Background())
 			require.NoError(t, err)
 			require.Equal(t, 1, len(items))
 
@@ -53,7 +53,7 @@ func TestArticleDelete(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	api := NewGetPocketAPI(config.ConsumerKey(), config.AccessToken())
+	api := New(config.ConsumerKey(), config.AccessToken())
 
 	itemID, err := api.Articles.Add(ctx, "https://news.v.daum.net/v/20220331000726592")
 	require.NoError(t, err)
