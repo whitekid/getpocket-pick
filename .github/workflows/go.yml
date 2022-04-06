@@ -23,5 +23,6 @@ jobs:
       - name: Test
         run: make test
         env:
+          PP_SECRET: ${{ secrets.PP_SECRET }}
           PP_CONSUMER_KEY: ${{ secrets.PP_CONSUMER_KEY }}
           PP_ACCESS_TOKEN: ${{ secrets.PP_ACCESS_TOKEN }}

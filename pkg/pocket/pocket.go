@@ -6,19 +6,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math/rand"
 	"strconv"
-	"time"
 
-	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/request"
 )
 
-// GetPocketAPI get pocket api
+// Client get pocket api client
 // please refer https://getpocket.com/developer/docs/overview
-type GetPocketAPI struct {
+type Client struct {
 	consumerKey string
 	accessToken string
 	sess        request.Interface // common sessions
@@ -27,13 +24,9 @@ type GetPocketAPI struct {
 	Articles *ArticlesAPI
 }
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
-// NewGetPocketAPI create GetPocket API
-func NewGetPocketAPI(consumerKey, accessToken string) *GetPocketAPI {
-	api := &GetPocketAPI{
+// New create GetPocket API
+func New(consumerKey, accessToken string) *Client {
+	api := &Client{
 		consumerKey: consumerKey,
 		accessToken: accessToken,
 		sess:        request.NewSession(nil),
@@ -79,26 +72,27 @@ type Article struct {
 	} `json:"videos"`
 }
 
-func (g *GetPocketAPI) success(r *request.Response) error {
-	if r.Success() {
+func (g *Client) success(resp *request.Response) error {
+	if resp.Success() {
 		return nil
 	}
-	message := r.Header.Get("x-error")
-	code := r.Header.Get("x-error-code")
-	return fmt.Errorf("error with status: %d, error=%s, code=%s", r.StatusCode, message, code)
+
+	message := resp.Header.Get("x-error")
+	code := resp.Header.Get("x-error-code")
+	return fmt.Errorf("error with status: %d, error=%s, code=%s", resp.StatusCode, message, code)
 }
 
 // AuthorizedURL get authorizedURL
-func (g *GetPocketAPI) AuthorizedURL(ctx context.Context, redirectURI string) (string, string, error) {
+func (g *Client) AuthorizedURL(ctx context.Context, redirectURI string) (string, string, error) {
 	resp, err := request.Post("https://getpocket.com/v3/oauth/request").
-		Header("X-"+echo.HeaderAccept, echo.MIMEApplicationJSON).
+		Header("X-Accept", "application/json").
 		JSON(map[string]string{
 			"consumer_key": g.consumerKey,
 			"redirect_uri": redirectURI,
 		}).Do(ctx)
 
 	if err != nil {
-		return "", "", err
+		return "", "", errors.Wrap(err, "authorized request failed")
 	}
 
 	if err := g.success(resp); err != nil {
@@ -110,18 +104,19 @@ func (g *GetPocketAPI) AuthorizedURL(ctx context.Context, redirectURI string) (s
 	}
 
 	if err := resp.JSON(&response); err != nil {
-		return "", "", err
+		return "", "", errors.Wrap(err, "fail to parse json")
 	}
+	defer resp.Body.Close()
 
 	return response.Code, fmt.Sprintf("https://getpocket.com/auth/authorize?request_token=%s&redirect_uri=%s", response.Code, redirectURI), nil
 }
 
 // NewAccessToken get accessToken, username from requestToken using oauth
-func (g *GetPocketAPI) NewAccessToken(ctx context.Context, requestToken string) (string, string, error) {
+func (g *Client) NewAccessToken(ctx context.Context, requestToken string) (string, string, error) {
 	log.Debugf("getAccessToken with %s", requestToken)
 
 	resp, err := g.sess.Post("https://getpocket.com/v3/oauth/authorize").
-		Header("X-"+echo.HeaderAccept, echo.MIMEApplicationJSON).
+		Header("X-Accept", "application/json").
 		JSON(map[string]string{
 			"consumer_key": g.consumerKey,
 			"code":         requestToken,
@@ -138,6 +133,8 @@ func (g *GetPocketAPI) NewAccessToken(ctx context.Context, requestToken string) 
 		AccessToken string `json:"access_token"`
 		Username    string `json:"username"`
 	}
+
+	defer resp.Body.Close()
 	if err := resp.JSON(&response); err != nil {
 		return "", "", err
 	}
@@ -147,7 +144,7 @@ func (g *GetPocketAPI) NewAccessToken(ctx context.Context, requestToken string) 
 
 // ArticlesAPI ...
 type ArticlesAPI struct {
-	pocket *GetPocketAPI
+	pocket *Client
 }
 
 const (
@@ -157,44 +154,68 @@ const (
 
 // ArticleGetResponse ...
 type ArticleGetResponse struct {
-	Status int                 `json:"status"`
-	List   *map[string]Article `json:"list"`
+	Status int                  `json:"status"`
+	List   *map[string]*Article `json:"list"`
 }
 
 // Get Retrieving a User's Pocket Data
-func (a *ArticlesAPI) Get(ctx context.Context, opts ...GetOption) (map[string]Article, error) {
+func (a *ArticlesAPI) Get() *ArticleGetRequest {
+	return &ArticleGetRequest{
+		api: a,
+	}
+}
+
+type ArticleGetRequest struct {
+	api *ArticlesAPI
+
+	search   string
+	domain   string
+	favorite int
+}
+
+func (r *ArticleGetRequest) Search(search string) *ArticleGetRequest {
+	r.search = search
+	return r
+}
+
+func (r *ArticleGetRequest) Domain(domain string) *ArticleGetRequest {
+	r.domain = domain
+	return r
+}
+
+func (r *ArticleGetRequest) Favorite(favorite int) *ArticleGetRequest {
+	r.favorite = favorite
+	return r
+}
+
+func (r *ArticleGetRequest) Do(ctx context.Context) (map[string]*Article, error) {
 	params := map[string]interface{}{
-		"consumer_key": a.pocket.consumerKey,
-		"access_token": a.pocket.accessToken,
+		"consumer_key": r.api.pocket.consumerKey,
+		"access_token": r.api.pocket.accessToken,
 		"state":        "all",
 		"detailType":   "simple",
 	}
 
-	var getOptions GetOptions
-	for _, o := range opts {
-		o.apply(&getOptions)
+	if r.favorite != 0 {
+		params["favorite"] = strconv.FormatInt(int64(r.favorite-1), 10)
 	}
 
-	if getOptions.favorite != 0 {
-		params["favorite"] = strconv.FormatInt(int64(getOptions.favorite-1), 10)
+	if r.search != "" {
+		params["search"] = r.search
 	}
 
-	if getOptions.search != "" {
-		params["search"] = getOptions.search
+	if r.domain != "" {
+		params["domain"] = r.domain
 	}
 
-	if getOptions.domain != "" {
-		params["domain"] = getOptions.domain
-	}
-
-	resp, err := a.pocket.sess.Post("https://getpocket.com/v3/get").
-		Header("X-"+echo.HeaderAccept, echo.MIMEApplicationJSON).
+	resp, err := r.api.pocket.sess.Post("https://getpocket.com/v3/get").
+		Header("X-Accept", "application/json").
 		JSON(params).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := a.pocket.success(resp); err != nil {
+	if err := r.api.pocket.success(resp); err != nil {
 		return nil, errors.Wrapf(err, "Get()")
 	}
 
@@ -223,18 +244,18 @@ func (a *ArticlesAPI) Get(ctx context.Context, opts ...GetOption) (map[string]Ar
 	return *response.List, nil
 }
 
-type articleActionParam struct {
+type actionParam struct {
 	Action string `json:"action"`
 	ItemID string `json:"item_id"`
 	Time   string `json:"time,omitempty"`
 }
 
-type articleActionResults struct {
+type actionResults struct {
 	ActionResults []bool `json:"action_results"`
 	Status        int    `json:"status"`
 }
 
-func (a *ArticlesAPI) sendAction(ctx context.Context, actions []articleActionParam) (*articleActionResults, error) {
+func (a *ArticlesAPI) sendAction(ctx context.Context, actions []actionParam) (*actionResults, error) {
 	var buf bytes.Buffer
 	json.NewEncoder(&buf).Encode(&actions)
 
@@ -252,7 +273,9 @@ func (a *ArticlesAPI) sendAction(ctx context.Context, actions []articleActionPar
 		return nil, errors.Wrap(err, "sendAction()")
 	}
 
-	var response articleActionResults
+	var response actionResults
+
+	defer resp.Body.Close()
 	if err := resp.JSON(&response); err != nil {
 		return nil, errors.Wrapf(err, "decode response")
 	}
@@ -283,6 +306,7 @@ func (a *ArticlesAPI) Add(ctx context.Context, url string) (itemID string, err e
 		} `json:"item"`
 	}
 
+	defer resp.Body.Close()
 	if err := resp.JSON(&response); err != nil {
 		return "", err
 	}
@@ -295,14 +319,13 @@ func (a *ArticlesAPI) Add(ctx context.Context, url string) (itemID string, err e
 func (a *ArticlesAPI) Delete(ctx context.Context, itemIDs ...string) error {
 	log.Debugf("remove item: %s", itemIDs)
 
-	params := make([]articleActionParam, len(itemIDs))
+	params := make([]actionParam, len(itemIDs))
 	for i := 0; i < len(itemIDs); i++ {
 		params[i].Action = "delete"
 		params[i].ItemID = itemIDs[i]
 	}
 
-	_, err := a.sendAction(ctx, params)
-	if err != nil {
+	if _, err := a.sendAction(ctx, params); err != nil {
 		return errors.Wrapf(err, "delete(%s)", itemIDs)
 	}
 

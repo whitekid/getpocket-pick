@@ -18,6 +18,7 @@ import (
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/service"
 	"github.com/whitekid/pocket-pick/config"
+	"github.com/whitekid/pocket-pick/pkg/pocket"
 )
 
 const (
@@ -110,7 +111,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 
 	// if not token, try to authorize
 	if _, exists := sess.Values[keyRequestToken]; !exists {
-		requestToken, authorizedURL, err := NewGetPocketAPI(config.ConsumerKey(), "").
+		requestToken, authorizedURL, err := pocket.New(config.ConsumerKey(), "").
 			AuthorizedURL(c.Request().Context(), fmt.Sprintf("%s/auth", s.rootURL))
 		if err != nil {
 			return errors.Wrapf(err, "authorize failed")
@@ -133,13 +134,13 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	log.Debugf("accessToken acquired, get random favorite pick: %s", accessToken)
 
 	key := fmt.Sprintf("%s/favorites", accessToken)
-	api := NewGetPocketAPI(config.ConsumerKey(), accessToken)
+	api := pocket.New(config.ConsumerKey(), accessToken)
 
 	data, exists := s.cache.Get([]byte(key))
-	var articleList map[string]Article
+	var articleList map[string]*pocket.Article
 	if !exists {
 		var err error
-		articleList, err = api.Articles.Get(c.Request().Context(), WithFavorate(Favorited))
+		articleList, err = api.Articles.Get().Favorite(pocket.Favorited).Do(c.Request().Context())
 		if err != nil {
 			return errors.Wrap(err, "get favorite artcles failed")
 		}
@@ -153,7 +154,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	} else {
 		log.Debug("load articles from cache")
 
-		articleList = make(map[string]Article)
+		articleList = make(map[string]*pocket.Article)
 		buf := bytes.NewBuffer(data)
 		if err := json.NewDecoder(buf).Decode(&articleList); err != nil {
 			return errors.Wrap(err, "json decode failed")
@@ -163,17 +164,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	log.Debugf("you have %d articles", len(articleList))
 
 	// random pick from articles
-	pick := rand.Intn(len(articleList))
-
-	selected := ""
-	i := 0
-	for k := range articleList {
-		if i == pick {
-			selected = k
-			break
-		}
-		i++
-	}
+	selected, _ := SampleMap(articleList)
 
 	article := articleList[selected]
 	log.Debugf("article: %+v", article)
@@ -201,6 +192,24 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	return c.Redirect(http.StatusFound, url)
 }
 
+// SampleMap sample 1 element from map
+// TODO move to goxp
+func SampleMap[K comparable, V any](collection map[K]V) (rk K, rv V) {
+	n := rand.Intn(len(collection))
+
+	i := 0
+
+	for k, v := range collection {
+		if i == n {
+			rk, rv = k, v
+			break
+		}
+		i++
+	}
+
+	return rk, rv
+}
+
 func (s *pocketService) handleGetAuth(c echo.Context) (err error) {
 	sess := s.session(c)
 
@@ -210,7 +219,7 @@ func (s *pocketService) handleGetAuth(c echo.Context) (err error) {
 
 	requestToken := sess.Values[keyRequestToken].(string)
 	if _, exists := sess.Values[keyAccessToken]; !exists {
-		accessToken, _, err := NewGetPocketAPI(config.ConsumerKey(), "").NewAccessToken(c.Request().Context(), requestToken)
+		accessToken, _, err := pocket.New(config.ConsumerKey(), "").NewAccessToken(c.Request().Context(), requestToken)
 		if err != nil {
 			log.Errorf("fail to get access token: %s", err)
 			return err
@@ -258,7 +267,7 @@ func (s *pocketService) handleGetArticle(c echo.Context) error {
 		return c.Redirect(http.StatusFound, s.rootURL)
 	}
 
-	if err := NewGetPocketAPI(config.ConsumerKey(), accessToken).Articles.Delete(c.Request().Context(), itemID); err != nil {
+	if err := pocket.New(config.ConsumerKey(), accessToken).Articles.Delete(c.Request().Context(), itemID); err != nil {
 		log.Errorf("failed: %s", err)
 		return err
 	}
