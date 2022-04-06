@@ -19,9 +19,7 @@ func init() {
 		Long:         "delete article",
 		Args:         cobra.MinimumNArgs(1),
 		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return deleteArticle(rootCmd.Context(), args...)
-		},
+		RunE:         func(cmd *cobra.Command, args []string) error { return deleteArticle(rootCmd.Context(), args...) },
 	})
 }
 

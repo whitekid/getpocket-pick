@@ -5,12 +5,14 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"github.com/whitekid/goxp/cryptox"
 	"github.com/whitekid/goxp/flags"
 )
 
 const (
 	keyBind          = "bind_addr"
 	keyRootURL       = "root_url"
+	keySecretKey     = "secret"
 	keyConsumerKey   = "consumer_key"
 	keyAccessToken   = "access_token"
 	keyCookieTimeout = "cookie_timeout"

@@ -16,9 +16,7 @@ func init() {
 	rootCmd.AddCommand(&cobra.Command{
 		Use:  "check-dead-link",
 		Long: "check dead link",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return checkDeadLink(rootCmd.Context())
-		},
+		RunE: func(cmd *cobra.Command, args []string) error { return checkDeadLink(rootCmd.Context()) },
 	})
 }
 
