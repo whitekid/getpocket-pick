@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -15,6 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/pkg/errors"
+	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/service"
 	"github.com/whitekid/pocket-pick/config"
@@ -164,7 +164,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	log.Debugf("you have %d articles", len(articleList))
 
 	// random pick from articles
-	selected, _ := SampleMap(articleList)
+	selected, _ := fx.SampleMap(articleList)
 
 	article := articleList[selected]
 	log.Debugf("article: %+v", article)
@@ -190,24 +190,6 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 
 	// log.Infof("move to %s, resolved: %s", url, article.ResolvedURL)
 	return c.Redirect(http.StatusFound, url)
-}
-
-// SampleMap sample 1 element from map
-// TODO move to goxp
-func SampleMap[K comparable, V any](collection map[K]V) (rk K, rv V) {
-	n := rand.Intn(len(collection))
-
-	i := 0
-
-	for k, v := range collection {
-		if i == n {
-			rk, rv = k, v
-			break
-		}
-		i++
-	}
-
-	return rk, rv
 }
 
 func (s *pocketService) handleGetAuth(c echo.Context) (err error) {
