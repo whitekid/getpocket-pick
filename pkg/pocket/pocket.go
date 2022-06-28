@@ -208,8 +208,8 @@ func (r *ArticleGetRequest) Do(ctx context.Context) (map[string]*Article, error)
 		params["domain"] = r.domain
 	}
 
-	resp, err := r.api.pocket.sess.Post("https://getpocket.com/v3/get").
-		Header("X-Accept", "application/json").
+	resp, err := r.api.pocket.sess.
+		Post("https://getpocket.com/v3/get").
 		JSON(params).Do(ctx)
 	if err != nil {
 		return nil, err
