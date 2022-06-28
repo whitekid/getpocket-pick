@@ -17,6 +17,7 @@ import (
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/service"
 	"github.com/whitekid/pocket-pick/config"
+	"github.com/whitekid/pocket-pick/pkg/cache"
 	"github.com/whitekid/pocket-pick/pkg/pocket"
 )
 
@@ -34,14 +35,14 @@ func New() service.Interface {
 	}
 
 	return &pocketService{
-		cache:   newBigCache(),
+		cache:   cache.NewBigCache(),
 		rootURL: rootURL,
 	}
 }
 
 type pocketService struct {
 	rootURL string
-	cache   cacher // for api cache
+	cache   cache.Interface // for api cache
 }
 
 // Serve serve the main service
@@ -107,11 +108,12 @@ func (s *pocketService) handleGetSession(c echo.Context) error {
 
 func (s *pocketService) handleGetIndex(c echo.Context) error {
 	sess := s.session(c)
+	ctx := c.Request().Context()
 
 	// if not token, try to authorize
 	if _, exists := sess.Values[keyRequestToken]; !exists {
 		requestToken, authorizedURL, err := pocket.New(config.ConsumerKey(), "").
-			AuthorizedURL(c.Request().Context(), fmt.Sprintf("%s/auth", s.rootURL))
+			AuthorizedURL(ctx, fmt.Sprintf("%s/auth", s.rootURL))
 		if err != nil {
 			return errors.Wrapf(err, "authorize failed")
 		}
@@ -135,11 +137,14 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	key := fmt.Sprintf("%s/favorites", accessToken)
 	api := pocket.New(config.ConsumerKey(), accessToken)
 
-	data, exists := s.cache.Get([]byte(key))
+	data, err := s.cache.Get(ctx, key)
 	var articleList map[string]*pocket.Article
-	if !exists {
+	if err != nil {
+		if err != cache.ErrNotExists {
+			return err
+		}
 		var err error
-		articleList, err = api.Articles.Get().Favorite(pocket.Favorited).Do(c.Request().Context())
+		articleList, err = api.Articles.Get().Favorite(pocket.Favorited).Do(ctx)
 		if err != nil {
 			return errors.Wrap(err, "get favorite artcles failed")
 		}
@@ -149,7 +154,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "json encode failed")
 		}
-		s.cache.Set([]byte(key), buf, withTTL(config.CacheEvictionTimeout()))
+		s.cache.Set(ctx, key, buf, cache.WithExpire(config.CacheEvictionTimeout()))
 	} else {
 		log.Debug("load articles from cache")
 
