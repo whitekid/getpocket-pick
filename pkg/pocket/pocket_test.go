@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"pocket-pick/config"
-
 	"github.com/stretchr/testify/require"
+
+	"pocket-pick/config"
 )
 
 func TestGetAuthorizedURL(t *testing.T) {

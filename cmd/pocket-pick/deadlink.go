@@ -3,15 +3,15 @@ package main
 import (
 	"context"
 
-	"pocket-pick/config"
-	"pocket-pick/pkg/pocket"
-
 	"github.com/labstack/gommon/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/whitekid/goxp"
 	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/request"
+
+	"pocket-pick/config"
+	"pocket-pick/pkg/pocket"
 )
 
 func init() {

@@ -8,10 +8,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"pocket-pick/config"
-	"pocket-pick/pkg/cache"
-	"pocket-pick/pkg/pocket"
-
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -20,6 +16,10 @@ import (
 	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/service"
+
+	"pocket-pick/config"
+	"pocket-pick/pkg/cache"
+	"pocket-pick/pkg/pocket"
 )
 
 const (
@@ -64,6 +64,12 @@ func (s *pocketService) Serve(ctx context.Context) error {
 	return nil
 }
 
+type Context struct {
+	echo.Context
+
+	sess *sessions.Session
+}
+
 func (s *pocketService) setupRoute() *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
@@ -73,15 +79,22 @@ func (s *pocketService) setupRoute() *echo.Echo {
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))),
 		func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
-				sess, _ := session.Get("pocket-pick-session", c)
-				sess.Options = &sessions.Options{
-					Path:     "/",
-					MaxAge:   int(config.CookieTimeout().Seconds()),
-					HttpOnly: true,
+				cc, ok := c.(*Context)
+				if !ok {
+					cc = &Context{Context: c}
 				}
 
-				c.Set("session", sess)
-				return next(c)
+				if cc.sess == nil {
+					sess, _ := session.Get("pocket-pick-session", cc)
+					sess.Options = &sessions.Options{
+						Path:     "/",
+						MaxAge:   int(config.CookieTimeout().Seconds()),
+						HttpOnly: true,
+					}
+					cc.sess = sess
+				}
+
+				return next(cc)
 			}
 		})
 
@@ -93,9 +106,7 @@ func (s *pocketService) setupRoute() *echo.Echo {
 	return e
 }
 
-func (s *pocketService) session(c echo.Context) *sessions.Session {
-	return c.Get("session").(*sessions.Session)
-}
+func (s *pocketService) session(c echo.Context) *sessions.Session { return c.(*Context).sess }
 
 func (s *pocketService) handleGetSession(c echo.Context) error {
 	sess := s.session(c)
