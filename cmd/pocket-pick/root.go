@@ -1,9 +1,10 @@
 package main
 
 import (
+	pocket "pocket-pick"
+	"pocket-pick/config"
+
 	"github.com/spf13/cobra"
-	pocket "github.com/whitekid/pocket-pick"
-	"github.com/whitekid/pocket-pick/config"
 )
 
 var rootCmd = &cobra.Command{

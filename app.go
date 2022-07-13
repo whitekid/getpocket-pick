@@ -8,6 +8,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"pocket-pick/config"
+	"pocket-pick/pkg/cache"
+	"pocket-pick/pkg/pocket"
+
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -16,9 +20,6 @@ import (
 	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/service"
-	"github.com/whitekid/pocket-pick/config"
-	"github.com/whitekid/pocket-pick/pkg/cache"
-	"github.com/whitekid/pocket-pick/pkg/pocket"
 )
 
 const (
@@ -49,7 +50,18 @@ type pocketService struct {
 func (s *pocketService) Serve(ctx context.Context) error {
 	e := s.setupRoute()
 
-	return e.Start(config.BindAddr())
+	go func() {
+		<-ctx.Done()
+		if err := e.Shutdown(context.Background()); err != nil {
+			log.Fatalf("%s", err)
+		}
+	}()
+
+	if err := e.Start(config.BindAddr()); err != nil && err != http.ErrServerClosed {
+		return err
+	}
+
+	return nil
 }
 
 func (s *pocketService) setupRoute() *echo.Echo {
