@@ -1,4 +1,4 @@
-GO_PKG_NAME=github.com/whitekid/pocket-pick
+GO_PKG_NAME=pocket-pick
 TARGET=bin/pocket-pick
 SRC=$(shell find . -type f -name '*.go' -not -path "./vendor/*" -not -path "*_test.go")
 

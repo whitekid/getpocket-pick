@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"runtime"
 
+	pocket "pocket-pick"
+
 	"github.com/spf13/cobra"
-	pocket "github.com/whitekid/pocket-pick"
 )
 
 func init() {
