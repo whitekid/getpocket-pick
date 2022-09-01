@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"strings"
 
-	"pocket-pick/config"
-	"pocket-pick/pkg/pocket"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/whitekid/goxp/log"
+
+	"pocket-pick/config"
+	"pocket-pick/pkg/pocket"
 )
 
 func init() {

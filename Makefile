@@ -40,8 +40,11 @@ dep:
 	go mod init ${GO_PKG_NAME}
 	@$(MAKE) tidy
 
+	go mod edit -replace github.com/whitekid/goxp@v0.0.10=github.com/whitekid/goxp@master
+	@$(MAKE) tidy
+
 tidy:
-	go mod tidy
+	@go mod tidy -v
 
 swag:
 	swag init -d .  -g app.go
