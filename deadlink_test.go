@@ -19,8 +19,8 @@ func TestCheckFetchArticle(t *testing.T) {
 		wantErr     bool
 		wantSuccess bool // true if fetch success
 	}{
-		// {"", args{"https://infuture.kr/1688"}, false, true},
-		// {"", args{"https://m.biz.chosun.com/svc/article.html?contid=2016012201926"}, false, true},
+		{"", args{"https://infuture.kr/1688"}, false, true},
+		{"", args{"https://m.biz.chosun.com/svc/article.html?contid=2016012201926"}, false, true},
 		{"", args{"http://blog.naver.com/inno_life/162500428"}, false, true},
 	}
 	for _, tt := range tests {
