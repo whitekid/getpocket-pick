@@ -3,6 +3,7 @@ module pocket-pick
 go 1.19
 
 require (
+	github.com/DataDog/zstd v1.5.2
 	github.com/alicebob/miniredis/v2 v2.23.0
 	github.com/allegro/bigcache v1.2.1
 	github.com/allegro/bigcache/v3 v3.1.0
@@ -67,3 +68,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/whitekid/goxp v0.0.10 => github.com/whitekid/goxp v0.0.0-20221108013108-172bcb1edba0

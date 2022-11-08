@@ -25,7 +25,7 @@ func TestCacher(t *testing.T) {
 		name string
 		args args
 	}{
-		{"bigcache", args{NewBigCache()}},
+		{"bigcache", args{NewBigCache(context.Background())}},
 		{"redis", args{NewRedis(r)}},
 	}
 	for _, tt := range tests {

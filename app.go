@@ -36,7 +36,7 @@ func New() service.Interface {
 	}
 
 	return &pocketService{
-		cache:   cache.NewBigCache(),
+		cache:   cache.NewBigCache(context.Background()),
 		rootURL: rootURL,
 	}
 }

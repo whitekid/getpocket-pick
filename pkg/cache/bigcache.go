@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/DataDog/zstd"
 	"github.com/allegro/bigcache/v3"
+	"github.com/pkg/errors"
 )
 
-func NewBigCache() Interface {
+func NewBigCache(ctx context.Context) Interface {
 	config := bigcache.DefaultConfig(time.Hour)
 	config.CleanWindow = time.Minute
-	cache, _ := bigcache.NewBigCache(config)
+	cache, _ := bigcache.New(ctx, config)
 	return &bigCacheImpl{
 		cache: cache,
 	}
@@ -25,6 +27,11 @@ var _ Interface = (*bigCacheImpl)(nil)
 
 func (b *bigCacheImpl) Set(ctx context.Context, key string, value []byte, opts ...setOption) error {
 	option := applySetOptions(opts)
+
+	value, err := zstd.Compress(nil, value)
+	if err != nil {
+		return err
+	}
 
 	if err := b.cache.Set(key, value); err != nil {
 		return err
@@ -45,6 +52,11 @@ func (b *bigCacheImpl) Get(ctx context.Context, key string) ([]byte, error) {
 			return nil, ErrNotExists
 		}
 		return nil, err
+	}
+
+	data, err = zstd.Decompress(nil, data)
+	if err != nil {
+		return nil, errors.Wrapf(err, "fail to decompress")
 	}
 
 	expireb, err := b.cache.Get(fmt.Sprintf("%s/expire", key))
