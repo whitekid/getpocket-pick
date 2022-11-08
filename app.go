@@ -194,7 +194,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	_, article := fx.SampleMap(articleList)
 	log.Debugf("article: %+v", article)
 
-	url := fmt.Sprintf("https://app.getpocket.com/read/%s", article.ItemID)
+	url := fmt.Sprintf("https://getpocket.com/read/%s", article.ItemID)
 
 	return c.Redirect(http.StatusFound, url)
 }
