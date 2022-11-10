@@ -9,7 +9,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:  "pocket-pick",
-	RunE: func(cmd *cobra.Command, args []string) error { return pocket.New().Serve(cmd.Context()) },
+	RunE: func(cmd *cobra.Command, args []string) error { return pocket.New(cmd.Context()).Serve(cmd.Context()) },
 }
 
 func init() {

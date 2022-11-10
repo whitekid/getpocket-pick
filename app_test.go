@@ -9,13 +9,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/allegro/bigcache"
 	"github.com/stretchr/testify/require"
 	"github.com/whitekid/goxp/request"
 )
 
 func newTestServer(ctx context.Context) *httptest.Server {
-	s := New().(*pocketService)
+	s := New(ctx).(*pocketService)
 	e := s.setupRoute()
 
 	ts := httptest.NewServer(e)
@@ -61,23 +60,4 @@ func TestIndex(t *testing.T) {
 
 func TestAuth(t *testing.T) {
 	// panic("Not Implemented")
-}
-
-func TestCache(t *testing.T) {
-	config := bigcache.DefaultConfig(time.Millisecond * 100)
-	config.CleanWindow = time.Second
-
-	cache, _ := bigcache.NewBigCache(config)
-	require.NoError(t, cache.Set("hello", []byte("world")))
-	value, err := cache.Get("hello")
-	require.NoError(t, err)
-	require.Equal(t, []byte("world"), value)
-
-	// eviction
-	{
-		time.Sleep(time.Second * 2)
-		value, err := cache.Get("hello")
-		require.Equal(t, bigcache.ErrEntryNotFound, err)
-		require.NotEqual(t, []byte("world"), value)
-	}
 }
