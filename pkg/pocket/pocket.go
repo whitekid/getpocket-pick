@@ -147,9 +147,11 @@ type ArticlesAPI struct {
 	pocket *Client
 }
 
+type Favorate int
+
 const (
-	UnFavorited = 1 // only return un-favorited items
-	Favorited   = 2 // only return favorited items
+	UnFavorited Favorate = iota + 1 // only return un-favorited items
+	Favorited                       // only return favorited items
 )
 
 // ArticleGetResponse ...
@@ -170,7 +172,7 @@ type ArticleGetRequest struct {
 
 	search   string
 	domain   string
-	favorite int
+	favorite Favorate
 }
 
 func (r *ArticleGetRequest) Search(search string) *ArticleGetRequest {
@@ -183,7 +185,7 @@ func (r *ArticleGetRequest) Domain(domain string) *ArticleGetRequest {
 	return r
 }
 
-func (r *ArticleGetRequest) Favorite(favorite int) *ArticleGetRequest {
+func (r *ArticleGetRequest) Favorite(favorite Favorate) *ArticleGetRequest {
 	r.favorite = favorite
 	return r
 }

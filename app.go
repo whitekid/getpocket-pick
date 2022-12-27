@@ -29,14 +29,14 @@ const (
 
 // New return pocket-pick service object
 // implements service interface
-func New() service.Interface {
+func New(ctx context.Context) service.Interface {
 	rootURL := config.RootURL()
 	if rootURL == "" {
 		panic("ROOT_URL required")
 	}
 
 	return &pocketService{
-		cache:   cache.NewBigCache(context.Background()),
+		cache:   cache.NewBigCache(ctx),
 		rootURL: rootURL,
 	}
 }
