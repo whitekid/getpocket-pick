@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/DataDog/zstd"
 	"github.com/allegro/bigcache/v3"
 	"github.com/pkg/errors"
 )
@@ -28,7 +27,7 @@ var _ Interface = (*bigCacheImpl)(nil)
 func (b *bigCacheImpl) Set(ctx context.Context, key string, value []byte, opts ...setOption) error {
 	option := applySetOptions(opts)
 
-	value, err := zstd.Compress(nil, value)
+	value, err := zstdCompress(value)
 	if err != nil {
 		return err
 	}
@@ -37,9 +36,12 @@ func (b *bigCacheImpl) Set(ctx context.Context, key string, value []byte, opts .
 		return err
 	}
 
+	expireKey := fmt.Sprintf("%s/expire", key)
 	if option.expire != 0 {
 		timez := time.Now().Add(option.expire).Format(time.RFC3339)
-		b.cache.Set(fmt.Sprintf("%s/expire", key), []byte(timez))
+		b.cache.Set(expireKey, []byte(timez))
+	} else {
+		b.cache.Delete(expireKey)
 	}
 
 	return nil
@@ -54,7 +56,7 @@ func (b *bigCacheImpl) Get(ctx context.Context, key string) ([]byte, error) {
 		return nil, err
 	}
 
-	data, err = zstd.Decompress(nil, data)
+	data, err = zstdDecompress(data)
 	if err != nil {
 		return nil, errors.Wrapf(err, "fail to decompress")
 	}
@@ -70,6 +72,13 @@ func (b *bigCacheImpl) Get(ctx context.Context, key string) ([]byte, error) {
 	}
 
 	if expire.Before(time.Now()) {
+		go func() {
+			<-time.After(time.Second)
+
+			b.cache.Delete(key)
+			b.cache.Delete(fmt.Sprintf("%s/expire", key))
+		}()
+
 		return nil, ErrNotExists
 	}
 
