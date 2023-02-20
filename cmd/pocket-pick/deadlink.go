@@ -9,6 +9,7 @@ import (
 	"github.com/whitekid/goxp"
 	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/request"
+	"github.com/whitekid/iter"
 
 	"pocket-pick/config"
 	"pocket-pick/pkg/pocket"
@@ -36,7 +37,7 @@ func checkDeadLink(ctx context.Context) error {
 		close(ch)
 		notFoundItems := []string{"274841724", "758026316", "392120428", "494194220"}
 
-		fx.ForEachMap(items, func(k string, v *pocket.Article) {
+		iter.M(items).Each(func(k string, v *pocket.Article) {
 			if fx.Contains(notFoundItems, v.ResolvedID) {
 				return
 			}
