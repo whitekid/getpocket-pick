@@ -36,8 +36,8 @@ test:
 
 # update modules & tidy
 dep:
-	rm -f go.mod go.sum
-	go mod init ${GO_PKG_NAME}
+	@rm -f go.mod go.sum
+	@go mod init ${GO_PKG_NAME}
 	@$(MAKE) tidy
 
 tidy:

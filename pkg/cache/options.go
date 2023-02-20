@@ -3,7 +3,7 @@ package cache
 import (
 	"time"
 
-	"github.com/whitekid/goxp/fx"
+	"github.com/whitekid/iter"
 )
 
 func WithExpire(expire time.Duration) setOption {
@@ -30,6 +30,6 @@ func newFuncSetOption(f func(o *setOptions)) setOption {
 
 func applySetOptions(opts []setOption) *setOptions {
 	opt := &setOptions{}
-	fx.ForEach(opts, func(_ int, o setOption) { o.apply(opt) })
+	iter.Of(opts...).Each(func(o setOption) { o.apply(opt) })
 	return opt
 }

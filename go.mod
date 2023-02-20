@@ -1,6 +1,6 @@
 module pocket-pick
 
-go 1.19
+go 1.20
 
 require (
 	github.com/DataDog/zstd v1.5.2
@@ -12,13 +12,14 @@ require (
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/labstack/gommon v0.4.0
 	github.com/pkg/errors v0.9.1
-	github.com/redis/go-redis/v9 v9.0.0-rc.4
+	github.com/redis/go-redis/v9 v9.0.2
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.1
-	github.com/swaggo/swag v1.8.9
-	github.com/whitekid/goxp v0.0.0-20230111081110-dc6cd0f76511
+	github.com/swaggo/swag v1.8.10
+	github.com/whitekid/goxp v0.0.0-20230217185520-0e582563483e
+	github.com/whitekid/iter v0.0.0-20230127094834-f884532688a8
 )
 
 require (
@@ -57,12 +58,12 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/crypto v0.2.0 // indirect
-	golang.org/x/exp v0.0.0-20230108222341-4b8118a2686a // indirect
-	golang.org/x/net v0.5.0 // indirect
+	golang.org/x/crypto v0.5.0 // indirect
+	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb // indirect
+	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/time v0.2.0 // indirect
 	golang.org/x/tools v0.2.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
