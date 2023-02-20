@@ -11,8 +11,8 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/pkg/errors"
+	"github.com/whitekid/echox"
 	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/service"
@@ -70,19 +70,24 @@ type Context struct {
 	sess *sessions.Session
 }
 
-func (s *pocketService) setupRoute() *echo.Echo {
-	e := echo.New()
-	e.HideBanner = true
+type ContextFactory struct{}
 
-	loggerConfig := middleware.DefaultLoggerConfig
-	e.Use(middleware.LoggerWithConfig(loggerConfig))
+func (f *ContextFactory) ContextIs(c echo.Context) bool {
+	_, ok := c.(*Context)
+	return ok
+}
+
+func (f *ContextFactory) NewContext(c echo.Context) echo.Context {
+	return &Context{Context: c}
+}
+
+func (s *pocketService) setupRoute() *echox.Echo {
+	e := echox.New()
+	e.Use(echox.CustomContext(&ContextFactory{}))
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))),
 		func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
-				cc, ok := c.(*Context)
-				if !ok {
-					cc = &Context{Context: c}
-				}
+				cc := c.(*Context)
 
 				if cc.sess == nil {
 					sess, _ := session.Get("pocket-pick-session", cc)
