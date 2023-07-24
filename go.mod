@@ -4,12 +4,12 @@ go 1.20
 
 require (
 	github.com/DataDog/zstd v1.5.5
-	github.com/alicebob/miniredis/v2 v2.30.3
+	github.com/alicebob/miniredis/v2 v2.30.4
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/klauspost/compress v1.16.6
+	github.com/klauspost/compress v1.16.7
 	github.com/labstack/echo-contrib v0.15.0
-	github.com/labstack/echo/v4 v4.10.2
+	github.com/labstack/echo/v4 v4.11.1
 	github.com/labstack/gommon v0.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.0.5
@@ -18,9 +18,10 @@ require (
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
 	github.com/swaggo/swag v1.16.1
-	github.com/whitekid/echox v0.0.0-20230619020910-59b04301a0c4
-	github.com/whitekid/goxp v0.0.0-20230619020524-d044720a3de5
-	github.com/whitekid/iter v0.0.0-20230330031517-b94e3cac3e59
+	github.com/whitekid/echox v0.0.0-20230717010146-1a326f8ff018
+	github.com/whitekid/getpocket v0.0.0-20230726021938-5c5e5bf10f77
+	github.com/whitekid/goxp v0.0.0-20230628101059-da9b452eabdf
+	github.com/whitekid/iter v0.0.0-20230626022125-03712fbaaf14
 )
 
 require (
@@ -50,7 +51,7 @@ require (
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -64,12 +65,12 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/crypto v0.10.0 // indirect
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
-	golang.org/x/net v0.11.0 // indirect
+	golang.org/x/crypto v0.11.0 // indirect
+	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df // indirect
+	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.9.0 // indirect
-	golang.org/x/text v0.10.0 // indirect
+	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

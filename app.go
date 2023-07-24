@@ -13,13 +13,13 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"github.com/whitekid/echox"
+	"github.com/whitekid/getpocket"
 	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/service"
 
 	"pocket-pick/config"
 	"pocket-pick/pkg/cache"
-	"pocket-pick/pkg/pocket"
 )
 
 const (
@@ -140,7 +140,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 
 	// if not token, try to authorize
 	if _, exists := sess.Values[keyRequestToken]; !exists {
-		requestToken, authorizedURL, err := pocket.New(config.ConsumerKey(), "").
+		requestToken, authorizedURL, err := getpocket.New(config.ConsumerKey(), "").
 			AuthorizedURL(ctx, fmt.Sprintf("%s/auth", s.rootURL))
 		if err != nil {
 			return errors.Wrapf(err, "authorize failed")
@@ -163,16 +163,16 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	log.Debugf("accessToken acquired, get random favorite pick: %s", accessToken)
 
 	key := fmt.Sprintf("%s/favorites", accessToken)
-	api := pocket.New(config.ConsumerKey(), accessToken)
+	api := getpocket.New(config.ConsumerKey(), accessToken)
 
 	data, err := s.cache.Get(ctx, key)
-	var articleList map[string]*pocket.Article
+	var articleList map[string]*getpocket.Article
 	if err != nil {
 		if err != cache.ErrNotExists {
 			return err
 		}
 		var err error
-		articleList, err = api.Articles.Get().Favorite(pocket.Favorited).Do(ctx)
+		articleList, err = api.Articles().Get().Favorite(getpocket.Favorited).Do(ctx)
 		if err != nil {
 			return errors.Wrap(err, "get favorite artcles failed")
 		}
@@ -186,7 +186,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	} else {
 		log.Debug("load articles from cache")
 
-		articleList = make(map[string]*pocket.Article)
+		articleList = make(map[string]*getpocket.Article)
 		buf := bytes.NewBuffer(data)
 		if err := json.NewDecoder(buf).Decode(&articleList); err != nil {
 			return errors.Wrap(err, "json decode failed")
@@ -213,7 +213,7 @@ func (s *pocketService) handleGetAuth(c echo.Context) (err error) {
 
 	requestToken := sess.Values[keyRequestToken].(string)
 	if _, exists := sess.Values[keyAccessToken]; !exists {
-		accessToken, _, err := pocket.New(config.ConsumerKey(), "").NewAccessToken(c.Request().Context(), requestToken)
+		accessToken, _, err := getpocket.New(config.ConsumerKey(), "").NewAccessToken(c.Request().Context(), requestToken)
 		if err != nil {
 			log.Errorf("fail to get access token: %s", err)
 			return err
@@ -261,7 +261,7 @@ func (s *pocketService) handleGetArticle(c echo.Context) error {
 		return c.Redirect(http.StatusFound, s.rootURL)
 	}
 
-	if err := pocket.New(config.ConsumerKey(), accessToken).Articles.Delete(c.Request().Context(), itemID); err != nil {
+	if _, err := getpocket.New(config.ConsumerKey(), accessToken).Modify().Delete(itemID).Do(c.Request().Context()); err != nil {
 		log.Errorf("failed: %s", err)
 		return err
 	}

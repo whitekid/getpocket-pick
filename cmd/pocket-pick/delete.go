@@ -8,10 +8,11 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/whitekid/getpocket"
+	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
 
 	"pocket-pick/config"
-	"pocket-pick/pkg/pocket"
 )
 
 func init() {
@@ -20,39 +21,38 @@ func init() {
 		Long:         "delete article",
 		Args:         cobra.MinimumNArgs(1),
 		SilenceUsage: true,
-		RunE:         func(cmd *cobra.Command, args []string) error { return deleteArticle(rootCmd.Context(), args...) },
+		RunE:         func(cmd *cobra.Command, args []string) error { return deleteArticle(cmd.Context(), args...) },
 	})
 }
 
-func deleteArticle(ctx context.Context, itemIDs ...string) error {
-	api := pocket.New(config.ConsumerKey(), config.AccessToken())
-	for _, arg := range itemIDs {
+func deleteArticle(ctx context.Context, idOrURLs ...string) error {
+	api := getpocket.New(config.ConsumerKey(), config.AccessToken())
+	for _, idOrURL := range idOrURLs {
 		// delete by url
-		if strings.HasPrefix(arg, "http://") || strings.HasPrefix(arg, "https://") {
-			items, err := api.Articles.Get().Search(arg).Do(ctx)
+		if strings.HasPrefix(idOrURL, "http://") || strings.HasPrefix(idOrURL, "https://") {
+			items, err := api.Articles().Get().Search(idOrURL).Do(ctx)
 			if err != nil {
-				return errors.Wrapf(err, "articles.Get(%+v)", arg)
+				return errors.Wrapf(err, "articles.Get(%+v)", idOrURL)
 			}
 
 			if len(items) != 1 {
-				return fmt.Errorf("not found: %s", arg)
+				return fmt.Errorf("not found: %s", idOrURL)
 			}
 
-			for _, v := range items {
-				log.Infof("deleting %s, %s", v.ItemID, v.ResolvedURL)
-				if err := api.Articles.Delete(ctx, v.ItemID); err != nil {
-					return errors.Wrapf(err, "articles.Delete(%s)", v.ItemID)
-				}
+			ids := fx.Map(fx.Values(items), func(e *getpocket.Article) string { return e.ItemID })
+			log.Infof("deleting %s", ids)
+			if _, err := api.Modify().Delete(ids...).Do(ctx); err != nil {
+				return errors.Wrapf(err, "articles.Delete(%s)", ids)
 			}
 		} else {
 			// delete by id
-			if _, err := strconv.Atoi(arg); err != nil {
-				return fmt.Errorf("%s is not valid id", arg)
+			if _, err := strconv.Atoi(idOrURL); err != nil {
+				return fmt.Errorf("%s is not valid id", idOrURL)
 			}
 
-			log.Infof("deleting item %s", arg)
-			if err := api.Articles.Delete(ctx, arg); err != nil {
-				return errors.Wrapf(err, "articles.Delete(%s)", arg)
+			log.Infof("deleting item %s", idOrURL)
+			if _, err := api.Modify().Delete(idOrURL).Do(ctx); err != nil {
+				return errors.Wrapf(err, "articles.Delete(%s)", idOrURL)
 			}
 		}
 	}
