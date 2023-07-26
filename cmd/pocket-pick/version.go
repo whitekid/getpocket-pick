@@ -13,12 +13,12 @@ func init() {
 	rootCmd.AddCommand(&cobra.Command{
 		Use:   "version",
 		Short: "Show version information",
-		Run:   func(cmd *cobra.Command, args []string) { Version() },
+		Run:   func(cmd *cobra.Command, args []string) { version() },
 	})
 }
 
-// Version print version informations
-func Version() {
+// version print version informations
+func version() {
 	fmt.Printf("Go Version: %s\n", runtime.Version())
 	fmt.Printf("Compiler: %s\n", runtime.Compiler)
 	fmt.Printf("OS/Arch: %s/%s\n", runtime.GOOS, runtime.GOARCH)

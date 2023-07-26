@@ -10,10 +10,10 @@ import (
 )
 
 // compress with datadog zstd
-func zstddCompress(src []byte) ([]byte, error) { return zstd.Compress(nil, src) }
+func zstdDatadogCompress(src []byte) ([]byte, error) { return zstd.Compress(nil, src) }
 
 // decompress with datadog zstd
-func zstddDecompress(src []byte) ([]byte, error) { return zstd.Decompress(nil, src) }
+func zstdDatadogDecompress(src []byte) ([]byte, error) { return zstd.Decompress(nil, src) }
 
 // see https://github.com/klauspost/compress/tree/master/zstd#performance
 func BenchmarkZstdCompress(b *testing.B) {
@@ -37,7 +37,7 @@ func BenchmarkZstdCompress(b *testing.B) {
 		b.StartTimer()
 
 		b.Run(tt.name+"-zstd", func(b *testing.B) {
-			out, err := zstddCompress(data)
+			out, err := zstdDatadogCompress(data)
 			require.NoError(b, err)
 			_ = out
 		})
@@ -71,7 +71,7 @@ func BenchmarkZstdDecompress(b *testing.B) {
 		b.StartTimer()
 
 		b.Run(tt.name+"-zstd", func(b *testing.B) {
-			out, err := zstddDecompress(data)
+			out, err := zstdDatadogDecompress(data)
 			require.NoError(b, err)
 			_ = out
 		})

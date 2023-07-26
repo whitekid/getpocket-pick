@@ -6,38 +6,38 @@ import (
 	"github.com/labstack/gommon/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/whitekid/getpocket"
 	"github.com/whitekid/goxp"
 	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/request"
 	"github.com/whitekid/iter"
 
 	"pocket-pick/config"
-	"pocket-pick/pkg/pocket"
 )
 
 func init() {
 	rootCmd.AddCommand(&cobra.Command{
 		Use:  "check-dead-link",
 		Long: "check dead link",
-		RunE: func(cmd *cobra.Command, args []string) error { return checkDeadLink(rootCmd.Context()) },
+		RunE: func(cmd *cobra.Command, args []string) error { return checkDeadLink(cmd.Context()) },
 	})
 }
 
 func checkDeadLink(ctx context.Context) error {
-	api := pocket.New(config.ConsumerKey(), config.AccessToken())
-	items, err := api.Articles.Get().Favorite(pocket.Favorited).Do(ctx)
+	api := getpocket.New(config.ConsumerKey(), config.AccessToken())
+	items, err := api.Articles().Get().Favorite(getpocket.Favorited).Do(ctx)
 	if err != nil {
 		return errors.Wrap(err, "articles.Get(Favorite)")
 	}
 	log.Debug("items: %d", len(items))
 
-	ch := make(chan *pocket.Article)
+	ch := make(chan *getpocket.Article)
 
 	go func() {
 		close(ch)
 		notFoundItems := []string{"274841724", "758026316", "392120428", "494194220"}
 
-		iter.M(items).Each(func(k string, v *pocket.Article) {
+		iter.M(items).Each(func(k string, v *getpocket.Article) {
 			if fx.Contains(notFoundItems, v.ResolvedID) {
 				return
 			}
@@ -72,7 +72,7 @@ func checkDeadLink(ctx context.Context) error {
 	if len(itemsToDelete) > 0 {
 		log.Infof("deleting: %v", itemsToDelete)
 
-		if err := api.Articles.Delete(ctx, itemsToDelete...); err != nil {
+		if _, err := api.Modify().Delete(itemsToDelete...).Do(ctx); err != nil {
 			return errors.Wrapf(err, "articles.Delete(%s)", itemsToDelete)
 		}
 	}
