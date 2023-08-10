@@ -11,6 +11,7 @@ import (
 	"github.com/whitekid/getpocket"
 	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
+	"golang.org/x/exp/maps"
 
 	"pocket-pick/config"
 )
@@ -39,7 +40,7 @@ func deleteArticle(ctx context.Context, idOrURLs ...string) error {
 				return fmt.Errorf("not found: %s", idOrURL)
 			}
 
-			ids := fx.Map(fx.Values(items), func(e *getpocket.Article) string { return e.ItemID })
+			ids := fx.Map(maps.Values(items), func(e *getpocket.Article) string { return e.ItemID })
 			log.Infof("deleting %s", ids)
 			if _, err := api.Modify().Delete(ids...).Do(ctx); err != nil {
 				return errors.Wrapf(err, "articles.Delete(%s)", ids)

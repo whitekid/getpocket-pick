@@ -1,10 +1,10 @@
 module pocket-pick
 
-go 1.20
+go 1.21.0
 
 require (
 	github.com/DataDog/zstd v1.5.5
-	github.com/alicebob/miniredis/v2 v2.30.4
+	github.com/alicebob/miniredis/v2 v2.30.5
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/gorilla/sessions v1.2.1
 	github.com/klauspost/compress v1.16.7
@@ -18,10 +18,10 @@ require (
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
 	github.com/swaggo/swag v1.16.1
-	github.com/whitekid/echox v0.0.0-20230717010146-1a326f8ff018
-	github.com/whitekid/getpocket v0.0.0-20230726021938-5c5e5bf10f77
-	github.com/whitekid/goxp v0.0.0-20230628101059-da9b452eabdf
-	github.com/whitekid/iter v0.0.0-20230626022125-03712fbaaf14
+	github.com/whitekid/echox v0.0.0-20230810053443-1aef794ffce2
+	github.com/whitekid/getpocket v0.0.0-20230803121214-665fc4ca5edf
+	github.com/whitekid/goxp v0.0.0-20230810050412-a05fd2ece2ea
+	github.com/whitekid/iter v0.0.0-20230727022917-a28e6cf0ed40
 )
 
 require (
@@ -40,7 +40,7 @@ require (
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.14.1 // indirect
+	github.com/go-playground/validator/v10 v10.15.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
@@ -62,15 +62,14 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/yuin/gopher-lua v1.1.0 // indirect
-	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.8.0 // indirect
-	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/crypto v0.11.0 // indirect
-	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df // indirect
-	golang.org/x/net v0.12.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/zap v1.25.0 // indirect
+	golang.org/x/crypto v0.12.0 // indirect
+	golang.org/x/exp v0.0.0-20230810033253-352e893a4cad // indirect
+	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.10.0 // indirect
-	golang.org/x/text v0.11.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/text v0.12.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

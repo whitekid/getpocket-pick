@@ -37,7 +37,7 @@ func TestSession(t *testing.T) {
 		resp, err := sess.Get("%s%s", ts.URL, "/sessions").Do(ctx)
 		require.NotEqual(t, 0, len(resp.Cookies()), "cookie must be exists")
 		require.NoError(t, err)
-		require.True(t, resp.Success(), "status=%d", resp.StatusCode)
+		require.NoErrorf(t, resp.Success(), "status=%d", resp.StatusCode)
 
 		var v string
 		require.NoError(t, resp.JSON(&v))
