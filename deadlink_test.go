@@ -14,14 +14,13 @@ func TestCheckFetchArticle(t *testing.T) {
 	}
 
 	tests := [...]struct {
-		name        string
-		args        args
-		wantErr     bool
-		wantSuccess bool // true if fetch success
+		name    string
+		args    args
+		wantErr bool
 	}{
-		{"", args{"https://infuture.kr/1688"}, false, true},
-		{"", args{"https://m.biz.chosun.com/svc/article.html?contid=2016012201926"}, false, true},
-		{"", args{"http://blog.naver.com/inno_life/162500428"}, false, true},
+		{"", args{"https://infuture.kr/1688"}, false},
+		{"", args{"https://m.biz.chosun.com/svc/article.html?contid=2016012201926"}, false},
+		{"", args{"http://blog.naver.com/inno_life/162500428"}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -30,10 +29,9 @@ func TestCheckFetchArticle(t *testing.T) {
 				Do(context.Background())
 			if tt.wantErr && err != nil {
 				require.Fail(t, "wantErr: %s but got success", tt.wantErr)
-				require.True(t, resp.Success())
+				require.NoError(t, resp.Success())
 			}
-
-			require.Equal(t, tt.wantSuccess, resp.Success(), "wantSuccess: %v but get status %d", tt.wantSuccess, resp.StatusCode)
+			require.NoError(t, resp.Success())
 		})
 	}
 }

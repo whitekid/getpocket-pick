@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
+	"slices"
 
-	"github.com/labstack/gommon/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/whitekid/getpocket"
 	"github.com/whitekid/goxp"
-	"github.com/whitekid/goxp/fx"
+	"github.com/whitekid/goxp/log"
 	"github.com/whitekid/goxp/request"
 	"github.com/whitekid/iter"
 
@@ -38,7 +38,7 @@ func checkDeadLink(ctx context.Context) error {
 		notFoundItems := []string{"274841724", "758026316", "392120428", "494194220"}
 
 		iter.M(items).Each(func(k string, v *getpocket.Article) {
-			if fx.Contains(notFoundItems, v.ResolvedID) {
+			if slices.Contains(notFoundItems, v.ResolvedID) {
 				return
 			}
 
@@ -60,7 +60,7 @@ func checkDeadLink(ctx context.Context) error {
 				continue
 			}
 
-			if !resp.Success() {
+			if err := resp.Success(); err != nil {
 				log.Errorf("failed with %d, itemID: %s, link: %s", resp.StatusCode, article.ItemID, article.ResolvedURL)
 				itemsToDelete = append(itemsToDelete, article.ItemID)
 			}
