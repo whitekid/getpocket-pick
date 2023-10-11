@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/goxp/request"
+	"github.com/whitekid/goxp/requests"
 )
 
 func TestCheckFetchArticle(t *testing.T) {
@@ -24,7 +24,7 @@ func TestCheckFetchArticle(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resp, err := request.Get("https://infuture.kr/1271").
+			resp, err := requests.Get("https://infuture.kr/1271").
 				Header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36").
 				Do(context.Background())
 			if tt.wantErr && err != nil {

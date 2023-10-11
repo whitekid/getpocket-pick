@@ -19,26 +19,38 @@ const (
 	keyCacheTimeout  = "favorite_cache_timeout"
 )
 
-var configs = map[string][]flags.Flag{
-	"pocket-pick": {
-		{keyBind, "B", "127.0.0.1:8000", "bind address"},
-		{keyRootURL, "r", "http://127.0.0.0:8000", "root url"},
-		{keySecretKey, "", "", "encrypt secret key"},
-		{keyConsumerKey, "k", "", "getpocket consumer key"},
-		{keyAccessToken, "a", "", "getpocket access token"},
-		{keyCookieTimeout, "c", time.Hour * 24 * 30 * 12, "cookie timeout"},
-		{keyCacheTimeout, "", time.Hour, "timeout for cache favorite items"},
-	},
-}
+func InitConfig() {
+	// 	if cfgFile != "" {
+	// 		// Use config file from the flag.
+	// 		viper.SetConfigFile(cfgFile)
+	// 	} else {
+	// 		// Find home directory.
+	// 		home, err := os.UserHomeDir()
+	// 		cobra.CheckErr(err)
 
-func init() {
+	// 		// Search config in home directory with name ".cobra" (without extension).
+	// 		viper.AddConfigPath(home)
+	// 		viper.SetConfigType("yaml")
+	// 		viper.SetConfigName(".cobra")
+	// }
+
 	viper.SetEnvPrefix("pp")
 	viper.AutomaticEnv()
 
-	flags.InitDefaults(nil, configs)
+	//	if err := viper.ReadInConfig(); err == nil {
+	//		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	//	}
 }
 
-func InitFlagSet(use string, fs *pflag.FlagSet) { flags.InitFlagSet(nil, configs, use, fs) }
+func InitRootFlags(fs *pflag.FlagSet) {
+	flags.String(fs, keyBind, "bind", "B", "127.0.0.1:8000", "bind address")
+	flags.String(fs, keyRootURL, "root-url", "r", "http://127.0.0.0:8000", "root url")
+	flags.String(fs, keySecretKey, "secret-key", "", "", "encrypt secret key")
+	flags.String(fs, keyConsumerKey, "consumer-key", "k", "", "getpocket consumer key")
+	flags.String(fs, keyAccessToken, "access-token", "a", "", "getpocket access token")
+	flags.Duration(fs, keyCookieTimeout, "cookie-timeout", "c", time.Hour*24*30*12, "cookie timeout")
+	flags.Duration(fs, keyCacheTimeout, "cache-timeout", "", time.Hour, "timeout for cache favorite items")
+}
 
 // Config access functions
 func BindAddr() string                    { return viper.GetString(keyBind) }
