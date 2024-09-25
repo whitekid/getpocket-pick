@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/whitekid/goxp/request"
+	"github.com/whitekid/goxp/requests"
 )
 
 func newTestServer(ctx context.Context) *httptest.Server {
@@ -31,7 +31,7 @@ func TestSession(t *testing.T) {
 
 	ts := newTestServer(ctx)
 
-	sess := request.NewSession(nil)
+	sess := requests.NewSession(nil)
 
 	for i := 0; i < 10; i++ {
 		resp, err := sess.Get("%s%s", ts.URL, "/sessions").Do(ctx)
@@ -52,7 +52,7 @@ func TestIndex(t *testing.T) {
 	ts := newTestServer(ctx)
 
 	// check if redirect to authorize url
-	resp, err := request.Get("%s", ts.URL).FollowRedirect(false).Do(ctx)
+	resp, err := requests.Get("%s", ts.URL).FollowRedirect(false).Do(ctx)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusFound, resp.StatusCode)
 	require.True(t, strings.HasPrefix(resp.Header.Get("Location"), "https://getpocket.com/auth/authorize?request_token="), resp.Header.Get("Location"))

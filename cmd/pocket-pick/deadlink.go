@@ -9,7 +9,7 @@ import (
 	"github.com/whitekid/getpocket"
 	"github.com/whitekid/goxp"
 	"github.com/whitekid/goxp/log"
-	"github.com/whitekid/goxp/request"
+	"github.com/whitekid/goxp/requests"
 	"github.com/whitekid/iter"
 
 	"pocket-pick/config"
@@ -51,7 +51,7 @@ func checkDeadLink(ctx context.Context) error {
 	goxp.DoWithWorker(ctx, 4, func(i int) error {
 		for article := range ch {
 			log.Infof("checking %s %s", article.ItemID, article.ResolvedURL)
-			resp, err := request.Get(article.ResolvedURL).
+			resp, err := requests.Get(article.ResolvedURL).
 				Header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36").
 				Do(ctx)
 			if err != nil {
