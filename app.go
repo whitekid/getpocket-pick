@@ -14,9 +14,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/whitekid/echox"
 	"github.com/whitekid/getpocket"
-	"github.com/whitekid/goxp/fx"
 	"github.com/whitekid/goxp/log"
-	"github.com/whitekid/goxp/service"
+	"github.com/whitekid/goxp/mapx"
+	"github.com/whitekid/goxp/services"
 
 	"pocket-pick/config"
 	"pocket-pick/pkg/cache"
@@ -29,7 +29,7 @@ const (
 
 // New return pocket-pick service object
 // implements service interface
-func New(ctx context.Context) service.Interface {
+func New(ctx context.Context) services.Interface {
 	rootURL := config.RootURL()
 	if rootURL == "" {
 		panic("ROOT_URL required")
@@ -196,7 +196,7 @@ func (s *pocketService) handleGetIndex(c echo.Context) error {
 	log.Debugf("you have %d articles", len(articleList))
 
 	// random pick from articles
-	_, article := fx.SampleMap(articleList)
+	_, article := mapx.Sample(articleList)
 	log.Debugf("article: %+v", article)
 
 	url := fmt.Sprintf("https://getpocket.com/read/%s", article.ItemID)

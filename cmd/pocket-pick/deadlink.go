@@ -48,7 +48,7 @@ func checkDeadLink(ctx context.Context) error {
 
 	// start 4 worker
 	var itemsToDelete []string
-	goxp.DoWithWorker(ctx, 4, func(i int) error {
+	goxp.DoWithWorker(ctx, 4, func(ctx context.Context, i int) error {
 		for article := range ch {
 			log.Infof("checking %s %s", article.ItemID, article.ResolvedURL)
 			resp, err := requests.Get(article.ResolvedURL).
